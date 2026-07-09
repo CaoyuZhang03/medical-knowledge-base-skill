@@ -1,0 +1,7 @@
+[
+  {
+    "id": "prompt-core-pubmed",
+    "input_topic": "Dupilumab治疗儿童特应性皮炎的长期疗效",
+    "required_prompt_terms": ["PubMed", "MeSH", "[tiab]", "布尔逻辑", "直接输出文本检索式"]
+  }
+]

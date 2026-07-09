@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "medical-knowledge-base/shared/contracts/candidate_record.schema.json",
+  "title": "Candidate Paper Record",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["id", "title", "status", "created_at"],
+  "properties": {
+    "id": { "type": "integer", "minimum": 1 },
+    "pmid": { "type": ["string", "null"] },
+    "doi": { "type": ["string", "null"] },
+    "title": { "type": "string", "minLength": 1 },
+    "authors": { "type": "array" },
+    "journal": { "type": ["string", "null"] },
+    "publication_year": { "type": ["integer", "null"] },
+    "study_type": { "type": ["string", "null"] },
+    "if_2025": { "type": ["number", "null"] },
+    "jcr_quartiles": { "type": "array" },
+    "raw": { "type": ["object", "null"] },
+    "status": { "enum": ["pending", "approved", "rejected"] },
+    "rejection_reason": { "type": ["string", "null"] },
+    "created_at": { "type": "string" },
+    "decided_at": { "type": ["string", "null"] }
+  }
+}

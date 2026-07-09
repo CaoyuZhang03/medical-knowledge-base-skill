@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "medical-knowledge-base/shared/contracts/task_record.schema.json",
+  "title": "Knowledge Base Task Record",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["id", "task_type", "status", "created_at", "updated_at"],
+  "properties": {
+    "id": { "type": "integer", "minimum": 1 },
+    "task_type": {
+      "enum": ["pdf_fetch", "index", "pubmed_search", "scheduled_update", "audit", "import"]
+    },
+    "payload": { "type": "object" },
+    "status": { "enum": ["pending", "running", "completed", "failed"] },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" }
+  }
+}

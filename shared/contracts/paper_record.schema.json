@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "medical-knowledge-base/shared/contracts/paper_record.schema.json",
+  "title": "Approved Paper Record",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["id", "title", "created_at", "updated_at"],
+  "properties": {
+    "id": { "type": "integer", "minimum": 1 },
+    "pmid": { "type": ["string", "null"] },
+    "doi": { "type": ["string", "null"] },
+    "title": { "type": "string", "minLength": 1 },
+    "authors": { "type": "array" },
+    "journal": { "type": ["string", "null"] },
+    "issn": { "type": ["string", "null"] },
+    "eissn": { "type": ["string", "null"] },
+    "publication_year": { "type": ["integer", "null"], "minimum": 1000, "maximum": 2100 },
+    "study_type": {
+      "type": ["string", "null"],
+      "enum": [
+        "临床研究",
+        "随机对照试验",
+        "非随机对照试验",
+        "观察性研究",
+        "病例报告/病例系列报告",
+        "Meta分析",
+        "系统性综述",
+        "指南/共识",
+        "信件/讲义",
+        "回顾性研究",
+        "期刊论文",
+        "社论/评论",
+        "文献综述",
+        "会议内容",
+        "勘误",
+        "unknown",
+        null
+      ]
+    },
+    "if_2025": { "type": ["number", "null"] },
+    "jcr_quartiles": { "type": "array" },
+    "has_pdf": { "type": "boolean" },
+    "pdf_path": { "type": ["string", "null"] },
+    "source": { "type": "string" },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" }
+  }
+}

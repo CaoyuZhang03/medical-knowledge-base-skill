@@ -1,0 +1,4 @@
+interface:
+  display_name: "Medical Knowledge Base"
+  short_description: "Local biomedical KB workflows"
+  default_prompt: "Use $medical-knowledge-base to build a local biomedical knowledge base, screen PubMed candidates, and answer from retrieved evidence."

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "rct",
+    "publication_types": ["Randomized Controlled Trial"],
+    "mesh_terms": [],
+    "expected": "随机对照试验"
+  },
+  {
+    "id": "meta",
+    "publication_types": ["Meta-Analysis"],
+    "mesh_terms": [],
+    "expected": "Meta分析"
+  },
+  {
+    "id": "guideline",
+    "publication_types": ["Practice Guideline"],
+    "mesh_terms": [],
+    "expected": "指南/共识"
+  },
+  {
+    "id": "clinical-mesh",
+    "publication_types": [],
+    "mesh_terms": ["Clinical Trial"],
+    "expected": "临床研究"
+  }
+]

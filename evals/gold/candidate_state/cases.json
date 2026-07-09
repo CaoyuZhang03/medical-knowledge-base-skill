@@ -1,0 +1,24 @@
+[
+  {
+    "id": "reject-does-not-ingest",
+    "action": "reject",
+    "candidate": {
+      "pmid": "1001",
+      "title": "Rejected candidate should not enter library",
+      "journal": "LANCET",
+      "publication_year": 2026,
+      "study_type": "期刊论文"
+    }
+  },
+  {
+    "id": "approve-ingests",
+    "action": "approve",
+    "candidate": {
+      "pmid": "1002",
+      "title": "Approved candidate should enter library",
+      "journal": "LANCET",
+      "publication_year": 2026,
+      "study_type": "随机对照试验"
+    }
+  }
+]

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "medical-knowledge-base/shared/contracts/kb_passport.schema.json",
+  "title": "Knowledge Base Passport",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "created_at", "kb_path", "jcr_table", "prompt_assets", "policy"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "created_at": { "type": "string" },
+    "kb_path": { "type": "string" },
+    "jcr_table": {
+      "type": "object",
+      "required": ["bundled_path", "version"],
+      "properties": {
+        "bundled_path": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "prompt_assets": {
+      "type": "object",
+      "required": ["search_query_generation"],
+      "properties": {
+        "search_query_generation": { "type": "string" }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "pubmed_topic_search_requires_confirmation",
+        "candidates_require_user_approval",
+        "scheduled_updates_write_candidates_only",
+        "pdf_fetch_open_access_only"
+      ],
+      "properties": {
+        "pubmed_topic_search_requires_confirmation": { "const": true },
+        "candidates_require_user_approval": { "const": true },
+        "scheduled_updates_write_candidates_only": { "const": true },
+        "pdf_fetch_open_access_only": { "const": true }
+      }
+    }
+  }
+}

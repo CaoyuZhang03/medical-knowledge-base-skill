@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "medical-knowledge-base/shared/contracts/kb_config.schema.json",
+  "title": "Knowledge Base Config",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "pdf_fetch", "pubmed", "defaults"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "created_at": { "type": "string" },
+    "pdf_fetch": {
+      "type": "object",
+      "required": ["enabled", "allowed_sources"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "allowed_sources": {
+          "type": "array",
+          "items": { "enum": ["pubmed-central", "open-access-link", "user-upload"] }
+        }
+      }
+    },
+    "pubmed": {
+      "type": "object",
+      "properties": {
+        "email": { "type": ["string", "null"] },
+        "api_key": { "type": ["string", "null"] }
+      }
+    },
+    "defaults": {
+      "type": "object",
+      "required": ["candidate_auto_ingest", "require_search_confirmation"],
+      "properties": {
+        "candidate_auto_ingest": { "const": false },
+        "require_search_confirmation": { "const": true }
+      }
+    }
+  }
+}

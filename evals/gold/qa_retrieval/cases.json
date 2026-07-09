@@ -1,0 +1,8 @@
+[
+  {
+    "id": "retrieves-biologic-evidence",
+    "question": "Which biologic reduced asthma exacerbations?",
+    "expected_phrase": "Dupilumab reduced exacerbations",
+    "limit": 3
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "lancet-by-issn",
+    "journal": "The Lancet",
+    "issn": "0140-6736",
+    "eissn": null,
+    "expected_journal": "LANCET",
+    "expected_quartile": "Q1"
+  },
+  {
+    "id": "nature-reviews-microbiology-by-eissn",
+    "journal": "Nature Reviews Microbiology",
+    "issn": null,
+    "eissn": "1740-1536",
+    "expected_journal": "NATURE REVIEWS MICROBIOLOGY",
+    "expected_quartile": "Q1"
+  }
+]

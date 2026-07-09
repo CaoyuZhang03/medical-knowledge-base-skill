@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "medical-knowledge-base/shared/contracts/saved_search.schema.json",
+  "title": "Saved PubMed Search",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["id", "name", "query", "frequency", "enabled", "created_at"],
+  "properties": {
+    "id": { "type": "integer", "minimum": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "topic": { "type": ["string", "null"] },
+    "query": { "type": "string", "minLength": 1 },
+    "filters": { "type": "object" },
+    "frequency": { "enum": ["daily", "weekly", "monthly"] },
+    "enabled": { "type": "boolean" },
+    "last_run_at": { "type": ["string", "null"] },
+    "created_at": { "type": "string" }
+  }
+}

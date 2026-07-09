@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "medical-knowledge-base/shared/contracts/evidence_packet.schema.json",
+  "title": "Evidence Packet",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "question", "scope", "retrieved_at", "evidence", "answer_policy"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "question": { "type": "string", "minLength": 1 },
+    "scope": {
+      "type": "object",
+      "required": ["doc_ids"],
+      "properties": {
+        "doc_ids": {
+          "oneOf": [
+            { "const": "all" },
+            { "type": "array", "items": { "type": "integer" } }
+          ]
+        }
+      }
+    },
+    "retrieved_at": { "type": "string" },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["paper_id", "text", "score"],
+        "properties": {
+          "paper_id": { "type": "integer" },
+          "chunk_id": { "type": "integer" },
+          "text": { "type": "string" },
+          "score": { "type": "number" },
+          "pmid": { "type": ["string", "null"] },
+          "doi": { "type": ["string", "null"] },
+          "title": { "type": "string" },
+          "source_locator": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "answer_policy": { "type": "string" }
+  }
+}
