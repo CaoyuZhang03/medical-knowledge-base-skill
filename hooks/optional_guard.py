@@ -11,7 +11,13 @@ from __future__ import annotations
 import json
 import sys
 
-DESTRUCTIVE_TERMS = (" library delete ", " candidates reject ", " --all")
+DESTRUCTIVE_TERMS = (
+    " library delete ",
+    " candidates reject ",
+    " library reindex ",
+    " schedule install ",
+    " schedule uninstall ",
+)
 
 
 def main() -> int:
@@ -21,13 +27,14 @@ def main() -> int:
     except json.JSONDecodeError:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse"}}))
         return 0
-    command = f" {data.get('tool_input', {}).get('command', '')} "
-    if any(term in command for term in DESTRUCTIVE_TERMS) and "CONFIRMED" not in command:
+    command = f" {data.get('tool_input', {}).get('command', '')} ".casefold()
+    has_confirmation = " --confirm " in command or " --confirm=" in command
+    if any(term in command for term in DESTRUCTIVE_TERMS) and not has_confirmation:
         print(
             json.dumps(
                 {
                     "permissionDecision": "deny",
-                    "permissionDecisionReason": "Destructive KB command requires explicit CONFIRMED marker.",
+                    "permissionDecisionReason": "Destructive KB command requires a preview confirmation token.",
                 }
             )
         )

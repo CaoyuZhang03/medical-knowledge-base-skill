@@ -9,6 +9,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 import kb  # noqa: E402
+from kb_core import storage  # noqa: E402
 
 
 def test_init_kb_creates_expected_layout(tmp_path):
@@ -24,6 +25,19 @@ def test_init_kb_creates_expected_layout(tmp_path):
     assert (kb_path / "files" / "pdfs").is_dir()
     assert (kb_path / "files" / "extracted-text").is_dir()
     assert (kb_path / "logs").is_dir()
+
+
+def test_audit_refreshes_exported_passport_snapshot(tmp_path):
+    kb_path = tmp_path / "my-kb"
+    kb.init_kb(kb_path)
+    kb.insert_paper(kb_path, {"title": "Audited paper", "source": "test"})
+
+    result = kb.audit_kb(kb_path)
+    passport = storage._load_yaml(kb_path / "kb-passport.yaml")
+
+    assert result["passed"] is True
+    assert passport["data_summary"]["paper_count"] == 1
+    assert passport["refreshed_at"]
 
     with sqlite3.connect(kb_path / "kb.sqlite") as conn:
         tables = {

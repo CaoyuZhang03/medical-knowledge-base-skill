@@ -1,45 +1,52 @@
 # Workflow: import-local-files
 
 ## Trigger
-Use when the user uploads or points to local PDFs, DOCX, Markdown, TXT, CSV/Excel, RIS, BibTeX, or PMID lists.
+Use when the user explicitly wants local files added to a durable biomedical KB, including PDF, DOCX, Markdown, TXT, CSV, XLSX, RIS, BibTeX, or PMID-list inputs.
 
 ## Inputs
-- Existing or new KB path.
-- One or more local file paths.
+- KB path.
+- One or more user-selected local files.
 
 ## Required Decisions
-- Ask whether to initialize the KB if the path does not exist.
-- Ask before importing a very large folder recursively.
+- Initialize the KB first if it does not exist.
+- Ask before recursively importing a large directory; the CLI accepts explicit files, not an implicit recursive crawl.
 
 ## Data Access Level
-Input files are `raw`; successfully inserted records become `approved` because local import is user-provided.
+Source files are `raw`. User-selected imports become `approved` records. Extracted text is indexed for evidence retrieval.
 
 ## Steps
-1. Ensure the KB exists with `kb init`.
-2. Run `python scripts/kb.py import <kb_path> <files...>`.
-3. For PDFs/DOCX/TXT/MD, extract text and add chunks.
-4. For tables/bibliographies/PMID lists, create paper records and enrich later when possible.
-5. Run `kb audit` after import.
+1. Ensure the KB exists.
+2. When the user wants upload controls and no URL has been provided, start the local UI and provide its URL with the local-upload view.
+3. Import explicit files through the CLI or multipart UI endpoint.
+4. Preserve each source under `files/uploads/`; extract supported document text to `files/extracted-text/`.
+5. Normalize structured metadata, enrich against the bundled JCR table, deduplicate, and index abstracts/full text.
+6. Report created, duplicate, failed, paper IDs, per-item states, and warnings; then audit the KB.
 
 ## CLI/API Calls
+- `kb init <kb_path>`
 - `kb import <kb_path> <files...>`
 - `kb library list <kb_path>`
 - `kb audit <kb_path>`
+- `kb serve <kb_path> --host 127.0.0.1 --port 0`
+- `POST /api/import`
 
 ## Outputs
-- Paper records in `papers`.
-- Copied files under `files/uploads/`.
-- Extracted text under `files/extracted-text/`.
-- Retrieval chunks in `chunks`.
+- Preserved source files and optional extracted-text files.
+- Approved paper records and retrieval chunks.
+- Structured import summary and, when needed, a local upload URL.
 
 ## Quality Gates
-- Never discard source files after import.
-- If text extraction fails, still preserve the file and mark the record as imported without indexed text.
+- Never discard a user source because parsing failed.
+- Deduplicate by preserved source, PMID, normalized DOI, or bibliographic key as applicable.
+- Do not claim indexed text when extraction returned no content.
 
 ## Failure Handling
-- Missing files should fail loudly with the path.
-- Unsupported formats should be preserved as uploads but may have no extracted text.
+- Missing paths are recorded as failures with the original path.
+- Unsupported formats are preserved and reported with `unsupported_format`.
+- Malformed structured files produce warnings without aborting unrelated files.
 
 ## Related Contracts
 - `shared/contracts/paper_record.schema.json`
 - `shared/contracts/kb_passport.schema.json`
+- `shared/protocols/data-access-levels.md`
+- `shared/protocols/ui-escalation.md`

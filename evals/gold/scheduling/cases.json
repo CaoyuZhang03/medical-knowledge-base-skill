@@ -1,0 +1,5 @@
+[
+  {"id": "daily-next-run", "frequency": "daily", "expected_days": 1},
+  {"id": "weekly-next-run", "frequency": "weekly", "expected_days": 7},
+  {"id": "monthly-next-run", "frequency": "monthly", "expected_days": 30}
+]

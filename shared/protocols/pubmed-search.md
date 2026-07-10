@@ -1,17 +1,21 @@
 # PubMed Search Protocol
 
-Natural-language topic workflow:
+## Topic Input
 
 1. Read `assets/prompts/search-query-generation.md`.
-2. Generate a PubMed expression using MeSH + free terms.
-3. Show the exact expression and ask for confirmation.
-4. Search only after confirmation.
-5. Write results to `candidate_papers`.
+2. Generate a PubMed expression using MeSH plus free terms.
+3. Display the exact expression and wait for user confirmation.
+4. Retrieve only the confirmed expression.
 
-Direct PubMed query workflow:
+## Explicit Expression
 
-1. Treat the input as the query when it already uses PubMed syntax or the user says it is a search expression.
-2. Search directly unless the user asks for refinement.
-3. Write results to `candidate_papers`.
+Use the text directly when it already contains PubMed syntax or the user identifies it as a search expression. Refine only when asked.
 
-Never auto-ingest PubMed search results.
+## Normalization And Persistence
+
+- Normalize PubMed articles and book articles, all abstract sections, authors, DOI, PMCID, ISSN/EISSN, publication types, MeSH, year, OA link, and raw XML.
+- Enrich IF/JCR by normalized journal/ISSN matching and classify the configured study-type taxonomy.
+- Apply minimum IF, JCR, study type, and year filters before insertion. Treat censored IF conservatively.
+- Deduplicate atomically by PMID, normalized DOI, and bibliographic key across approved and candidate tables.
+- Persist the confirmed query, filters, and optional saved-search ID in candidate provenance.
+- Write candidates only. Candidate selection and approval remain separate.

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "text-document",
+    "filename": "trial.txt",
+    "content": "Primary endpoint improved after treatment.",
+    "expected_created": 1,
+    "question": "primary endpoint",
+    "expected_phrase": "Primary endpoint improved"
+  },
+  {
+    "id": "csv-bibliography",
+    "filename": "papers.csv",
+    "content": "title,doi,journal,abstract\nStructured trial,10.1000/eval,The Lancet,Secondary endpoint remained stable.\n",
+    "expected_created": 1,
+    "question": "secondary endpoint",
+    "expected_phrase": "Secondary endpoint remained stable"
+  }
+]

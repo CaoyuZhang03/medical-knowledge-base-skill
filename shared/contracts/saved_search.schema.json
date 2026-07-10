@@ -4,7 +4,7 @@
   "title": "Saved PubMed Search",
   "type": "object",
   "additionalProperties": true,
-  "required": ["id", "name", "query", "frequency", "enabled", "created_at"],
+  "required": ["id", "name", "query", "frequency", "enabled", "next_run_at", "created_at"],
   "properties": {
     "id": { "type": "integer", "minimum": 1 },
     "name": { "type": "string", "minLength": 1 },
@@ -14,6 +14,7 @@
     "frequency": { "enum": ["daily", "weekly", "monthly"] },
     "enabled": { "type": "boolean" },
     "last_run_at": { "type": ["string", "null"] },
+    "next_run_at": { "type": ["string", "null"] },
     "created_at": { "type": "string" }
   }
 }

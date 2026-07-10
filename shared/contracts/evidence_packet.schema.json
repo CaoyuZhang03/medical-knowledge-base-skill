@@ -4,7 +4,7 @@
   "title": "Evidence Packet",
   "type": "object",
   "additionalProperties": true,
-  "required": ["schema_version", "question", "scope", "retrieved_at", "evidence", "answer_policy"],
+  "required": ["schema_version", "question", "scope", "retrieved_at", "retrieval_method", "search_terms", "evidence", "answer_policy"],
   "properties": {
     "schema_version": { "type": "string" },
     "question": { "type": "string", "minLength": 1 },
@@ -21,6 +21,12 @@
       }
     },
     "retrieved_at": { "type": "string" },
+    "retrieval_method": { "enum": ["fts5_bm25", "scored_fallback"] },
+    "search_terms": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
     "evidence": {
       "type": "array",
       "items": {

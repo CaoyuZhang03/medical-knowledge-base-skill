@@ -8,6 +8,7 @@
   "properties": {
     "schema_version": { "type": "string" },
     "created_at": { "type": "string" },
+    "refreshed_at": { "type": ["string", "null"] },
     "kb_path": { "type": "string" },
     "jcr_table": {
       "type": "object",
@@ -30,13 +31,91 @@
         "pubmed_topic_search_requires_confirmation",
         "candidates_require_user_approval",
         "scheduled_updates_write_candidates_only",
-        "pdf_fetch_open_access_only"
+        "pdf_fetch_open_access_only",
+        "evidence_qa_uses_retrieved_chunks_only",
+        "destructive_actions_require_state_bound_confirmation"
       ],
       "properties": {
         "pubmed_topic_search_requires_confirmation": { "const": true },
         "candidates_require_user_approval": { "const": true },
         "scheduled_updates_write_candidates_only": { "const": true },
-        "pdf_fetch_open_access_only": { "const": true }
+        "pdf_fetch_open_access_only": { "const": true },
+        "evidence_qa_uses_retrieved_chunks_only": { "const": true },
+        "destructive_actions_require_state_bound_confirmation": { "const": true }
+      }
+    },
+    "schema_migrations": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 1 },
+      "uniqueItems": true
+    },
+    "data_summary": {
+      "type": "object",
+      "properties": {
+        "paper_count": { "type": "integer", "minimum": 0 },
+        "pending_candidate_count": { "type": "integer", "minimum": 0 },
+        "approved_candidate_count": { "type": "integer", "minimum": 0 },
+        "rejected_candidate_count": { "type": "integer", "minimum": 0 },
+        "saved_search_count": { "type": "integer", "minimum": 0 },
+        "task_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "candidate_decisions": {
+      "type": "object",
+      "properties": {
+        "approved_count": { "type": "integer", "minimum": 0 },
+        "rejected_count": { "type": "integer", "minimum": 0 },
+        "last_decided_at": { "type": ["string", "null"] }
+      }
+    },
+    "import_sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["paper_id", "source", "source_path", "created_at"],
+        "properties": {
+          "paper_id": { "type": "integer", "minimum": 1 },
+          "source": { "type": "string" },
+          "source_path": { "type": ["string", "null"] },
+          "created_at": { "type": "string" }
+        }
+      }
+    },
+    "scheduled_searches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "query", "filters", "frequency", "enabled"],
+        "properties": {
+          "id": { "type": "integer", "minimum": 1 },
+          "name": { "type": "string" },
+          "topic": { "type": ["string", "null"] },
+          "query": { "type": "string" },
+          "filters": { "type": "object" },
+          "frequency": { "enum": ["daily", "weekly", "monthly"] },
+          "enabled": { "type": "boolean" },
+          "last_run_at": { "type": ["string", "null"] },
+          "next_run_at": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "pdf_status": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "allowed_sources": { "type": "array", "items": { "type": "string" } },
+        "available_paper_count": { "type": "integer", "minimum": 0 },
+        "pending_task_count": { "type": "integer", "minimum": 0 },
+        "completed_task_count": { "type": "integer", "minimum": 0 },
+        "failed_task_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "index_status": {
+      "type": "object",
+      "properties": {
+        "chunk_count": { "type": "integer", "minimum": 0 },
+        "indexed_paper_count": { "type": "integer", "minimum": 0 },
+        "unindexed_paper_count": { "type": "integer", "minimum": 0 }
       }
     }
   }

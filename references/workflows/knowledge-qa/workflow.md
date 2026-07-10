@@ -1,41 +1,44 @@
 # Workflow: knowledge-qa
 
 ## Trigger
-Use when the user asks a question based on the local knowledge base, either across the whole KB or selected papers.
+Use when the user explicitly asks a question grounded in all approved papers or selected paper IDs from a durable local KB.
 
 ## Inputs
 - KB path.
-- User question.
-- Optional paper IDs.
+- Question.
+- Optional approved paper IDs.
 
 ## Required Decisions
 - Ask which KB to use if the path is unknown.
-- Ask for paper IDs only if the user wants a selected-document answer but has not identified documents.
+- Ask for IDs only when selected-paper scope is requested but no documents are identified.
 
 ## Data Access Level
-Answers use `evidence_only` packets retrieved from `approved` records.
+Codex consumes `evidence_only` packets retrieved from `approved` chunks.
 
 ## Steps
-1. Run `kb qa retrieve <kb_path> --question "<question>"`.
-2. If scoped, pass `--doc-ids`.
-3. Read the evidence packet.
-4. Answer only from retrieved evidence.
-5. Cite title plus PMID/DOI when available.
+1. Run evidence retrieval with whole-KB scope or explicit `--doc-ids`.
+2. Inspect `retrieval_method`, `search_terms`, and returned chunks.
+3. If evidence is empty or insufficient, state that limitation and stop; do not fill biomedical claims from model memory.
+4. Synthesize only supported statements and cite paper title plus PMID or DOI when present.
+5. Keep selected-document scope exact.
 
 ## CLI/API Calls
+- `kb qa retrieve <kb_path> --question "..."`
 - `kb qa retrieve <kb_path> --question "..." --doc-ids <ids...>`
 
 ## Outputs
-- Evidence packet.
-- Codex answer with source citations.
+- Evidence packet with scope, method, terms, evidence, scores, provenance, and answer policy.
+- Evidence-grounded answer or explicit insufficiency response.
 
 ## Quality Gates
-- Empty evidence means say evidence is insufficient.
-- Do not use model memory for biomedical claims.
+- Never answer this workflow directly from raw uploads, pending candidates, general model memory, or an empty packet.
+- Do not broaden selected IDs without user approval.
 
 ## Failure Handling
-- If no chunks exist, tell the user to import/reindex documents before QA.
+- If chunks are absent, recommend guarded reindex or importing extractable source text.
+- If only partial evidence is available, answer the supported portion and name the gap.
 
 ## Related Contracts
 - `shared/contracts/evidence_packet.schema.json`
 - `shared/protocols/evidence-qa.md`
+- `shared/protocols/data-access-levels.md`

@@ -1,0 +1,114 @@
+[
+  {
+    "id": "init-durable-kb",
+    "prompt": "请在 D:\\medical-kb 创建一个长期维护的本地医学知识库",
+    "should_trigger": true,
+    "expected_mode": "init-kb",
+    "expect_ui": false,
+    "reason": "Explicit durable local KB creation request."
+  },
+  {
+    "id": "import-into-kb",
+    "prompt": "把这些 PDF 和 RIS 文件导入我的本地医学知识库并建立索引",
+    "should_trigger": true,
+    "expected_mode": "import-local-files",
+    "expect_ui": true,
+    "reason": "Durable KB import and local upload workflow."
+  },
+  {
+    "id": "pubmed-to-candidates",
+    "prompt": "为我的哮喘知识库检索 PubMed，筛选 Q1 和随机对照试验后放进候审区",
+    "should_trigger": true,
+    "expected_mode": "pubmed-discovery",
+    "expect_ui": true,
+    "reason": "PubMed discovery explicitly targets a KB candidate queue."
+  },
+  {
+    "id": "review-candidates",
+    "prompt": "打开这个知识库的候审区，我要批量批准和拒绝文献",
+    "should_trigger": true,
+    "expected_mode": "candidate-review",
+    "expect_ui": true,
+    "reason": "Candidate screening is an operational KB workflow."
+  },
+  {
+    "id": "schedule-updates",
+    "prompt": "给本地知识库创建每周 PubMed 更新任务，并让我查看每次新增的候审文献",
+    "should_trigger": true,
+    "expected_mode": "scheduled-updates",
+    "expect_ui": true,
+    "reason": "Recurring search configuration belongs to the durable KB."
+  },
+  {
+    "id": "library-delete",
+    "prompt": "在文献库页面删除 ID 12 和 18，并重建其余文献索引",
+    "should_trigger": true,
+    "expected_mode": "library-management",
+    "expect_ui": true,
+    "reason": "Destructive library maintenance requires preview and UI."
+  },
+  {
+    "id": "whole-kb-qa",
+    "prompt": "基于整个本地知识库回答度普利尤单抗是否减少急性发作",
+    "should_trigger": true,
+    "expected_mode": "knowledge-qa",
+    "expect_ui": false,
+    "reason": "Question explicitly requires evidence from the durable KB."
+  },
+  {
+    "id": "selected-paper-qa",
+    "prompt": "只基于知识库里的文献 ID 3、7、9 回答这个临床问题",
+    "should_trigger": true,
+    "expected_mode": "knowledge-qa",
+    "expect_ui": false,
+    "reason": "Selected-document evidence retrieval is requested."
+  },
+  {
+    "id": "pdf-acquisition",
+    "prompt": "为知识库中缺少 PDF 的文献尝试获取 PMC 开放全文",
+    "should_trigger": true,
+    "expected_mode": "pdf-acquisition",
+    "expect_ui": true,
+    "reason": "Open-access PDF tasks update durable KB records."
+  },
+  {
+    "id": "quality-audit",
+    "prompt": "审计这个医学知识库的 schema、索引和任务一致性",
+    "should_trigger": true,
+    "expected_mode": "quality-audit",
+    "expect_ui": false,
+    "reason": "Explicit KB consistency audit."
+  },
+  {
+    "id": "one-off-pubmed",
+    "prompt": "帮我查一下 PubMed 上最近的哮喘论文，列五篇即可",
+    "should_trigger": false,
+    "expected_mode": null,
+    "expect_ui": false,
+    "reason": "One-off literature research does not request a durable KB."
+  },
+  {
+    "id": "standalone-pdf-summary",
+    "prompt": "总结我刚上传的这一篇 PDF",
+    "should_trigger": false,
+    "expected_mode": null,
+    "expect_ui": false,
+    "reason": "Standalone document summarization should use the PDF workflow."
+  },
+  {
+    "id": "general-medical-question",
+    "prompt": "SGLT2 抑制剂有哪些常见不良反应？",
+    "should_trigger": false,
+    "expected_mode": null,
+    "expect_ui": false,
+    "reason": "General medical QA does not imply a local KB."
+  },
+  {
+    "id": "jcr-explanation",
+    "prompt": "JCR Q1 和 Q2 有什么区别？",
+    "should_trigger": false,
+    "expected_mode": null,
+    "expect_ui": false,
+    "reason": "Concept explanation does not request KB construction or maintenance."
+  }
+]

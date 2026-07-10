@@ -1,39 +1,52 @@
 # Workflow: pdf-acquisition
 
 ## Trigger
-Use when the user wants to fetch, attach, or audit PDFs for library or candidate papers.
+Use when the user wants to fetch, inspect, retry, or audit PDFs associated with records in a durable local KB.
 
 ## Inputs
 - KB path.
-- Paper IDs or `--all`.
-- PDF policy setting.
+- One paper ID or an explicit all-record scope.
+- `pdf_fetch.enabled` policy from `config.yaml`.
 
 ## Required Decisions
-- Confirm bulk PDF fetching if it may make many network requests.
+- Confirm a large all-library fetch because it may make many network requests.
+- Use the local UI for PDF scope selection, status, task monitoring, and retry.
 
 ## Data Access Level
-Downloaded PDFs are `raw`; their existence updates `approved` metadata only after successful open-access retrieval or user upload.
+Downloaded PDFs are `raw` local evidence sources; successful existence updates `approved` paper metadata.
 
 ## Steps
-1. Read `shared/protocols/pdf-policy.md`.
-2. For each paper, prefer PubMed Central and explicit open-access links.
-3. Save PDFs under `files/pdfs/`.
-4. Mark `has_pdf=true` only when the file exists locally.
+1. If no live URL has been provided, start the UI and provide its library/task URL before asking the user to select records or inspect outcomes.
+2. Read the PDF policy and KB configuration.
+3. Queue a `pdf_fetch` task for selected records.
+4. Resolve only a PMCID or explicit HTTPS open-access PDF URL.
+5. Validate PDF bytes, save under `files/pdfs/`, then set `has_pdf=true` and `pdf_path`.
+6. Record completed, not-found, already-present, or failed task results and refresh the UI state.
 
 ## CLI/API Calls
 - `kb pdf fetch <kb_path> --doc-id <id>`
 - `kb pdf fetch <kb_path> --all`
+- `kb serve <kb_path> --host 127.0.0.1 --port 0`
+- `POST /api/pdfs/fetch`
+- `POST /api/tasks/retry`
 
 ## Outputs
-- Local PDF files where legally available.
-- Updated `has_pdf` and `pdf_path`.
+- Auditable task records and optional local PDF files.
+- Updated paper PDF status only after validated local persistence.
+- A local library/task-monitoring URL.
 
 ## Quality Gates
-- Do not bypass paywalls or institutional access.
+- Accept only PubMed Central, explicit open-access HTTPS PDF links, or user uploads.
+- Never use ordinary article URLs as proof of an open PDF.
+- Never bypass paywalls, institutional login, robots restrictions, or copyright controls.
 
 ## Failure Handling
-- If no open PDF is found, leave `has_pdf=false` and report the reason.
+- No allowed source completes as `not_found` without changing `has_pdf`.
+- Network or content validation failures mark the task failed without rolling back an approved paper.
+- Retry creates a new auditable task rather than rewriting prior history.
 
 ## Related Contracts
-- `shared/protocols/pdf-policy.md`
+- `shared/contracts/paper_record.schema.json`
 - `shared/contracts/task_record.schema.json`
+- `shared/protocols/pdf-policy.md`
+- `shared/protocols/ui-escalation.md`

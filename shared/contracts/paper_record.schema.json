@@ -42,6 +42,9 @@
     "has_pdf": { "type": "boolean" },
     "pdf_path": { "type": ["string", "null"] },
     "source": { "type": "string" },
+    "source_path": { "type": ["string", "null"] },
+    "abstract": { "type": ["string", "null"] },
+    "full_text_path": { "type": ["string", "null"] },
     "created_at": { "type": "string" },
     "updated_at": { "type": "string" }
   }

@@ -1,28 +1,809 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Medical Knowledge Base</title>
+  <title>医学知识库</title>
   <style>
-    :root { color-scheme: light; font-family: Arial, sans-serif; }
-    body { margin: 0; background: #f7f8fa; color: #20242a; }
-    header { background: #ffffff; border-bottom: 1px solid #d9dee7; padding: 18px 24px; }
-    main { padding: 20px 24px; display: grid; gap: 18px; }
-    h1 { font-size: 22px; margin: 0; }
-    h2 { font-size: 16px; margin: 0 0 12px; }
-    section { background: #ffffff; border: 1px solid #d9dee7; border-radius: 8px; padding: 16px; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { border-bottom: 1px solid #edf0f4; text-align: left; padding: 8px 10px; vertical-align: top; }
-    th { color: #526070; font-weight: 600; background: #fafbfc; }
+    :root {
+      color-scheme: light;
+      font-family: "Microsoft YaHei UI", "PingFang SC", Arial, sans-serif;
+      --bg: #f4f6f7;
+      --surface: #ffffff;
+      --surface-soft: #f8faf9;
+      --text: #1d2927;
+      --muted: #687572;
+      --border: #d9e0de;
+      --border-soft: #e8edeb;
+      --teal-900: #064e4b;
+      --teal-800: #0a625e;
+      --teal-700: #087b75;
+      --teal-100: #dff1ee;
+      --green: #23845b;
+      --amber: #a76511;
+      --red: #c33d3d;
+      --red-soft: #fff1f1;
+      --shadow: 0 14px 40px rgba(24, 38, 35, 0.16);
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-size: 14px; }
+    button, input, select, textarea { font: inherit; letter-spacing: 0; }
+    button, input, select, textarea { border-radius: 4px; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: 0.48; }
+    .app { min-height: 100%; display: grid; grid-template-columns: 210px minmax(0, 1fr); }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--teal-900);
+      color: #fff;
+      border-right: 1px solid #0c6762;
+    }
+    .brand {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.16);
+      font-size: 19px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .nav { display: grid; gap: 4px; padding: 14px 10px; }
+    .nav-button {
+      width: 100%;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 0;
+      padding: 0 12px;
+      color: rgba(255,255,255,0.84);
+      background: transparent;
+      text-align: left;
+      border-radius: 4px;
+    }
+    .nav-button:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-button.active { background: rgba(255,255,255,0.16); color: #fff; font-weight: 700; }
+    .nav-mark { width: 22px; text-align: center; font-size: 12px; font-weight: 800; }
+    .sidebar-foot { margin-top: auto; padding: 15px 18px; color: rgba(255,255,255,0.66); border-top: 1px solid rgba(255,255,255,0.14); font-size: 12px; }
+
+    .main { min-width: 0; }
+    .topbar {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .mobile-menu { display: none; width: 36px; height: 36px; border: 1px solid var(--border); background: #fff; padding: 8px; }
+    .mobile-menu span { display: block; height: 2px; margin: 3px 0; background: var(--text); }
+    .path-block { min-width: 0; display: flex; align-items: center; gap: 9px; }
+    .path-label { color: var(--muted); white-space: nowrap; }
+    .kb-path { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+    .runtime { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--muted); white-space: nowrap; }
+    .runtime-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+
+    .content { padding: 20px 24px 32px; }
+    .view { display: none; }
+    .view.active { display: block; }
+    .view-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 18px; }
+    h1 { margin: 0; font-size: 22px; line-height: 1.3; letter-spacing: 0; }
+    .view-subtitle { margin: 5px 0 0; color: var(--muted); line-height: 1.5; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+    .metric { min-height: 74px; padding: 13px 16px; border-right: 1px solid var(--border-soft); }
+    .metric:last-child { border-right: 0; }
+    .metric-label { color: var(--muted); font-size: 12px; }
+    .metric-value { margin-top: 4px; font-size: 23px; font-weight: 700; color: var(--teal-700); }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 50px;
+      padding: 9px 0;
+      border-top: 1px solid var(--border-soft);
+    }
+    .toolbar:first-of-type { border-top: 0; }
+    .toolbar-spacer { flex: 1 1 auto; }
+    .button {
+      min-height: 34px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 6px 12px;
+      font-weight: 600;
+    }
+    .button:hover { border-color: #aab7b3; background: var(--surface-soft); }
+    .button.primary { border-color: var(--teal-700); background: var(--teal-700); color: #fff; }
+    .button.primary:hover { background: var(--teal-800); }
+    .button.danger { border-color: #e4a3a3; color: var(--red); background: #fff; }
+    .button.danger:hover { background: var(--red-soft); }
+    .button.quiet { border-color: transparent; background: transparent; color: var(--muted); }
+    .field, .select {
+      height: 34px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      padding: 6px 10px;
+      outline: none;
+    }
+    .field:focus, .select:focus, textarea:focus { border-color: var(--teal-700); box-shadow: 0 0 0 2px rgba(8,123,117,0.12); }
+    .search-field { width: min(280px, 100%); }
+
+    .table-frame { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .table-scroll { width: 100%; overflow-x: auto; }
+    table { width: 100%; min-width: 900px; border-collapse: collapse; table-layout: fixed; }
+    th, td { border-bottom: 1px solid var(--border-soft); text-align: left; padding: 11px 10px; vertical-align: middle; }
+    th { height: 42px; color: #50605c; background: var(--surface-soft); font-size: 12px; font-weight: 700; }
+    tbody tr:hover { background: #f9fbfa; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .check-col { width: 44px; text-align: center; }
+    .id-col { width: 58px; }
+    .title-col { width: 31%; }
+    .journal-col { width: 17%; }
+    .compact-col { width: 86px; }
+    .type-col { width: 140px; }
+    .title-cell { line-height: 1.45; font-weight: 600; overflow-wrap: anywhere; }
+    .secondary { display: block; color: var(--muted); font-weight: 400; font-size: 12px; margin-top: 3px; }
+    input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--teal-700); }
+    .status { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 8px; border-radius: 12px; font-size: 12px; white-space: nowrap; }
+    .status.good { color: #176a48; background: #e7f5ed; }
+    .status.warn { color: #8b550d; background: #fff4da; }
+    .status.bad { color: #a52f2f; background: #fdeaea; }
+    .status.neutral { color: #596662; background: #edf1ef; }
+    .empty { padding: 54px 20px; text-align: center; color: var(--muted); }
+    .table-footer { min-height: 44px; display: flex; align-items: center; padding: 8px 12px; color: var(--muted); border-top: 1px solid var(--border-soft); }
+
+    .form-band { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; }
+    .form-group { display: grid; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { color: #4d5c58; font-size: 12px; font-weight: 700; }
+    .form-group .field, .form-group .select { width: 100%; }
+    textarea.field { height: 88px; resize: vertical; line-height: 1.5; }
+    .inline-check { display: flex; align-items: center; gap: 8px; min-height: 34px; }
+    .section-title { margin: 24px 0 10px; font-size: 16px; }
+
+    .upload-zone {
+      min-height: 210px;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background: var(--surface);
+      border: 1px dashed #9eaaa7;
+      border-radius: var(--radius);
+      text-align: center;
+    }
+    .upload-zone.dragging { border-color: var(--teal-700); background: #f2faf8; }
+    .upload-title { font-size: 17px; font-weight: 700; }
+    .upload-note { margin: 7px 0 16px; color: var(--muted); }
+    .upload-result { margin-top: 14px; min-height: 24px; color: var(--muted); }
+
+    dialog { width: min(520px, calc(100vw - 32px)); padding: 0; border: 0; border-radius: var(--radius); box-shadow: var(--shadow); color: var(--text); }
+    dialog::backdrop { background: rgba(16, 28, 25, 0.42); }
+    .dialog-head { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 18px; border-bottom: 1px solid var(--border); }
+    .dialog-head h2 { margin: 0; font-size: 17px; }
+    .dialog-close { margin-left: auto; width: 32px; height: 32px; border: 0; background: transparent; font-size: 22px; color: var(--muted); }
+    .dialog-body { padding: 18px; line-height: 1.6; }
+    .dialog-alert { display: flex; gap: 12px; align-items: flex-start; }
+    .alert-mark { flex: 0 0 30px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: #fff0d8; color: var(--amber); font-weight: 800; }
+    .dialog-impact { margin-top: 12px; padding: 10px 12px; background: var(--surface-soft); border: 1px solid var(--border-soft); border-radius: 4px; color: var(--muted); }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 9px; padding: 13px 18px; border-top: 1px solid var(--border); }
+    .reason-wrap { margin-top: 14px; }
+    .reason-wrap label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; }
+    .reason-wrap .field { width: 100%; }
+
+    .toast-region { position: fixed; right: 20px; bottom: 20px; z-index: 20; display: grid; gap: 8px; width: min(360px, calc(100vw - 32px)); }
+    .toast { padding: 11px 13px; border: 1px solid var(--border); background: #fff; border-left: 4px solid var(--teal-700); box-shadow: 0 8px 24px rgba(26,38,35,0.13); border-radius: 4px; }
+    .toast.error { border-left-color: var(--red); }
+    .loading { opacity: 0.58; pointer-events: none; }
+
+    @media (max-width: 900px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .metric:nth-child(2) { border-right: 0; }
+      .metric:nth-child(-n+2) { border-bottom: 1px solid var(--border-soft); }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: auto; }
+    }
+
+    @media (max-width: 760px) {
+      .app { display: block; }
+      .sidebar { position: static; height: auto; border-right: 0; background: var(--surface); color: var(--text); }
+      .brand { display: none; }
+      .nav { display: flex; overflow-x: auto; gap: 0; padding: 0 10px; border-bottom: 1px solid var(--border); scrollbar-width: none; }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav-button { flex: 0 0 auto; width: auto; height: 48px; color: var(--text); padding: 0 13px; border-radius: 0; border-bottom: 3px solid transparent; }
+      .nav-button:hover { color: var(--teal-700); background: transparent; }
+      .nav-button.active { color: var(--teal-700); background: transparent; border-bottom-color: var(--teal-700); }
+      .nav-mark, .sidebar-foot { display: none; }
+      .topbar { height: 58px; padding: 0 14px; }
+      .mobile-menu { display: block; }
+      .path-label { display: none; }
+      .kb-path { font-size: 16px; }
+      .runtime span:last-child { display: none; }
+      .content { padding: 14px 12px 28px; }
+      .view-header { align-items: flex-start; margin-bottom: 12px; }
+      h1 { font-size: 19px; }
+      .metrics { margin-bottom: 12px; }
+      .metric { min-height: 64px; padding: 10px 12px; }
+      .metric-value { font-size: 20px; }
+      .toolbar { align-items: stretch; }
+      .toolbar .button { flex: 0 0 auto; }
+      .toolbar-spacer { display: none; }
+      .search-field { order: -1; width: 100%; flex-basis: 100%; }
+      .table-frame { border-radius: 4px; }
+      table { min-width: 820px; }
+      th, td { padding: 10px 9px; }
+      dialog { width: 100%; max-width: none; margin: auto 0 0; border-radius: 6px 6px 0 0; }
+      .dialog-actions .button { flex: 1; min-height: 42px; }
+      .toast-region { right: 12px; bottom: 12px; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Medical Knowledge Base</h1>
-  </header>
-  <main>
-    {{content}}
-  </main>
+  <div class="app">
+    <aside class="sidebar" aria-label="主要导航">
+      <div class="brand">医学知识库</div>
+      <nav class="nav">
+        <button class="nav-button active" data-view="candidates"><span class="nav-mark">候</span><span>候审区</span></button>
+        <button class="nav-button" data-view="library"><span class="nav-mark">文</span><span>文献库</span></button>
+        <button class="nav-button" data-view="upload"><span class="nav-mark">传</span><span>本地上传</span></button>
+        <button class="nav-button" data-view="searches"><span class="nav-mark">定</span><span>定时任务</span></button>
+        <button class="nav-button" data-view="tasks"><span class="nav-mark">任</span><span>任务状态</span></button>
+      </nav>
+      <div class="sidebar-foot">本地数据，不上传到第三方服务</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" type="button" aria-label="显示导航"><span></span><span></span><span></span></button>
+        <div class="path-block"><span class="path-label">当前知识库</span><span class="kb-path" id="kb-path">正在加载...</span></div>
+        <div class="runtime"><span class="runtime-dot"></span><span>本地运行中</span><span id="schema-version"></span></div>
+      </header>
+
+      <div class="content">
+        <section class="view active" id="view-candidates" aria-labelledby="title-candidates">
+          <div class="view-header"><div><h1 id="title-candidates">候审区</h1><p class="view-subtitle">审核 PubMed 检索和定时任务发现的文献</p></div></div>
+          <div class="metrics">
+            <div class="metric"><div class="metric-label">待审核</div><div class="metric-value" id="metric-pending">0</div></div>
+            <div class="metric"><div class="metric-label">已选择</div><div class="metric-value" id="metric-candidate-selected">0</div></div>
+            <div class="metric"><div class="metric-label">已入库</div><div class="metric-value" id="metric-approved">0</div></div>
+            <div class="metric"><div class="metric-label">PDF 可用</div><div class="metric-value" id="metric-pdfs">0</div></div>
+          </div>
+          <div class="toolbar">
+            <button class="button primary" id="approve-candidates" disabled>批准</button>
+            <button class="button danger" id="reject-candidates" disabled>拒绝</button>
+            <button class="button" id="refresh-candidates">刷新</button>
+            <span class="toolbar-spacer"></span>
+            <input class="field search-field" id="candidate-filter" type="search" placeholder="筛选标题、期刊或研究类型" aria-label="筛选候审文献">
+            <select class="select" id="candidate-type" aria-label="研究类型"><option value="">全部研究类型</option></select>
+          </div>
+          <div class="table-frame"><div class="table-scroll"><table>
+            <thead><tr><th class="check-col"><input id="select-all-candidates" type="checkbox" aria-label="全选候审文献"></th><th class="id-col">ID</th><th class="title-col">标题</th><th class="journal-col">期刊</th><th class="compact-col">IF</th><th class="compact-col">JCR</th><th class="type-col">研究类型</th><th class="compact-col">年份</th><th class="compact-col">PDF</th></tr></thead>
+            <tbody id="candidate-rows"></tbody>
+          </table></div><div class="table-footer" id="candidate-count">共 0 条</div></div>
+        </section>
+
+        <section class="view" id="view-library" aria-labelledby="title-library">
+          <div class="view-header"><div><h1 id="title-library">文献库</h1><p class="view-subtitle">查看已批准文献、PDF 状态并维护检索索引</p></div></div>
+          <div class="toolbar">
+            <button class="button danger" id="delete-papers" disabled>删除所选</button>
+            <button class="button" id="reindex-papers" disabled>重建所选索引</button>
+            <button class="button" id="fetch-pdfs" disabled>获取 PDF</button>
+            <button class="button" id="refresh-library">刷新</button>
+            <span class="toolbar-spacer"></span>
+            <input class="field search-field" id="library-filter" type="search" placeholder="筛选标题、作者或期刊" aria-label="筛选文献库">
+          </div>
+          <div class="table-frame"><div class="table-scroll"><table>
+            <thead><tr><th class="check-col"><input id="select-all-library" type="checkbox" aria-label="全选文献"></th><th class="id-col">ID</th><th class="title-col">标题</th><th class="journal-col">期刊</th><th class="compact-col">IF</th><th class="compact-col">JCR</th><th class="type-col">研究类型</th><th class="compact-col">年份</th><th class="compact-col">PDF</th></tr></thead>
+            <tbody id="library-rows"></tbody>
+          </table></div><div class="table-footer" id="library-count">共 0 条</div></div>
+        </section>
+
+        <section class="view" id="view-upload" aria-labelledby="title-upload">
+          <div class="view-header"><div><h1 id="title-upload">本地上传</h1><p class="view-subtitle">导入 PDF、DOCX、TXT、Markdown、CSV、XLSX、RIS、BibTeX 或 PMID 列表</p></div></div>
+          <div class="upload-zone" id="upload-zone">
+            <div><div class="upload-title">选择或拖入本地文件</div><div class="upload-note">可一次选择多个文件；原始文件会保存在知识库内</div><button class="button primary" id="choose-files">选择文件</button><input id="file-input" type="file" multiple hidden></div>
+          </div>
+          <div class="upload-result" id="upload-result" aria-live="polite"></div>
+        </section>
+
+        <section class="view" id="view-searches" aria-labelledby="title-searches">
+          <div class="view-header"><div><h1 id="title-searches">定时任务</h1><p class="view-subtitle">保存已确认的 PubMed 检索式并按频率更新候审区</p></div></div>
+          <form class="form-band" id="search-form">
+            <div class="form-grid">
+              <div class="form-group"><label for="search-name">任务名称</label><input class="field" id="search-name" required placeholder="例如：重症哮喘每周更新"></div>
+              <div class="form-group"><label for="search-frequency">更新频率</label><select class="select" id="search-frequency"><option value="daily">每天</option><option value="weekly" selected>每周</option><option value="monthly">每月</option></select></div>
+              <div class="form-group full"><label for="search-query">已确认的 PubMed 检索式</label><textarea class="field" id="search-query" required placeholder="输入已由用户确认的 PubMed 检索式"></textarea></div>
+              <div class="form-group"><label for="search-min-if">最低 IF</label><input class="field" id="search-min-if" type="number" min="0" step="0.1" placeholder="不限制"></div>
+              <div class="form-group"><label for="search-jcr">JCR 分区</label><select class="select" id="search-jcr"><option value="">全部</option><option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option></select></div>
+              <div class="form-group"><label for="search-study-type">研究类型</label><input class="field" id="search-study-type" placeholder="例如：随机对照试验"></div>
+              <div class="form-group"><label>首次运行</label><label class="inline-check"><input id="search-run-first" type="checkbox" checked>创建后立即检索并进入候审区</label></div>
+            </div>
+            <div class="toolbar"><button class="button primary" type="submit">创建任务</button><button class="button" type="button" id="refresh-searches">刷新列表</button></div>
+          </form>
+          <h2 class="section-title">已保存任务</h2>
+          <div class="table-frame"><div class="table-scroll"><table>
+            <thead><tr><th class="check-col"><input id="select-all-searches" type="checkbox" aria-label="全选定时任务"></th><th class="id-col">ID</th><th>任务名称</th><th>频率</th><th>下次运行</th><th>最近运行</th><th>状态</th></tr></thead>
+            <tbody id="search-rows"></tbody>
+          </table></div><div class="table-footer"><button class="button" id="run-searches" disabled>立即运行所选</button></div></div>
+        </section>
+
+        <section class="view" id="view-tasks" aria-labelledby="title-tasks">
+          <div class="view-header"><div><h1 id="title-tasks">任务状态</h1><p class="view-subtitle">查看 PDF 获取、定时检索和后台任务的执行结果</p></div></div>
+          <div class="toolbar"><button class="button" id="retry-tasks" disabled>重试所选</button><button class="button" id="refresh-tasks">刷新</button><span class="toolbar-spacer"></span><select class="select" id="task-status"><option value="">全部状态</option><option value="pending">等待中</option><option value="completed">已完成</option><option value="failed">失败</option></select></div>
+          <div class="table-frame"><div class="table-scroll"><table>
+            <thead><tr><th class="check-col"><input id="select-all-tasks" type="checkbox" aria-label="全选任务"></th><th class="id-col">ID</th><th>任务类型</th><th>状态</th><th>创建时间</th><th>完成时间</th><th>结果</th></tr></thead>
+            <tbody id="task-rows"></tbody>
+          </table></div><div class="table-footer" id="task-count">共 0 条</div></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="confirm-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-head"><h2 id="dialog-title">确认操作</h2><button class="dialog-close" type="button" aria-label="关闭">×</button></div>
+    <div class="dialog-body">
+      <div class="dialog-alert"><div class="alert-mark">!</div><div><strong id="dialog-message"></strong><div id="dialog-description"></div></div></div>
+      <div class="reason-wrap" id="reason-wrap" hidden><label for="reject-reason">拒绝原因</label><input class="field" id="reject-reason" placeholder="可选，用于审计记录"></div>
+      <div class="dialog-impact" id="dialog-impact" hidden></div>
+    </div>
+    <div class="dialog-actions"><button class="button" type="button" id="dialog-cancel">取消</button><button class="button danger" type="button" id="dialog-confirm">查看影响</button></div>
+  </dialog>
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+
+  <script>
+    const state = {
+      overview: null,
+      candidates: [],
+      library: [],
+      searches: [],
+      tasks: [],
+      selected: { candidates: new Set(), library: new Set(), searches: new Set(), tasks: new Set() },
+      confirmation: null
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => [...document.querySelectorAll(selector)];
+    const api = async (path, options = {}) => {
+      const response = await fetch(path, options);
+      const payload = await response.json().catch(() => ({ error: "invalid_response", message: "服务器返回了无法解析的响应" }));
+      if (!response.ok) throw new Error(payload.message || payload.error || `请求失败 (${response.status})`);
+      return payload;
+    };
+    const post = (path, payload) => api(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    const text = (value) => value === null || value === undefined || value === "" ? "—" : String(value);
+    const formatDate = (value) => value ? new Date(value).toLocaleString("zh-CN", { hour12: false }) : "—";
+    const quartile = (items) => Array.isArray(items) && items.length ? [...new Set(items.map(item => item.quartile || item).filter(Boolean))].join(" / ") : "—";
+    const authors = (items) => Array.isArray(items) ? items.map(item => typeof item === "string" ? item : item.name || [item.last_name, item.fore_name].filter(Boolean).join(" ")).filter(Boolean).slice(0, 4).join(", ") : "";
+    const escapeSearch = (value) => String(value || "").toLocaleLowerCase("zh-CN");
+
+    function toast(message, error = false) {
+      const node = document.createElement("div");
+      node.className = `toast${error ? " error" : ""}`;
+      node.textContent = message;
+      $("#toast-region").append(node);
+      setTimeout(() => node.remove(), 3800);
+    }
+
+    function setLoading(element, loading) {
+      if (element) element.classList.toggle("loading", loading);
+    }
+
+    function cell(row, value, className = "") {
+      const node = document.createElement("td");
+      if (className) node.className = className;
+      node.textContent = text(value);
+      row.append(node);
+      return node;
+    }
+
+    function selectionCell(row, group, id) {
+      const node = document.createElement("td");
+      node.className = "check-col";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = state.selected[group].has(id);
+      input.setAttribute("aria-label", `选择 ID ${id}`);
+      input.addEventListener("change", () => {
+        if (input.checked) state.selected[group].add(id); else state.selected[group].delete(id);
+        updateSelection(group);
+      });
+      node.append(input);
+      row.append(node);
+    }
+
+    function statusNode(value) {
+      const node = document.createElement("span");
+      const classes = { completed: "good", approved: "good", enabled: "good", pending: "warn", running: "warn", failed: "bad", rejected: "bad", disabled: "neutral" };
+      const labels = { completed: "已完成", approved: "已批准", enabled: "启用", pending: "等待中", running: "运行中", failed: "失败", rejected: "已拒绝", disabled: "停用" };
+      node.className = `status ${classes[value] || "neutral"}`;
+      node.textContent = labels[value] || text(value);
+      return node;
+    }
+
+    function emptyRow(body, columns, message) {
+      const row = document.createElement("tr");
+      const node = document.createElement("td");
+      node.colSpan = columns;
+      node.className = "empty";
+      node.textContent = message;
+      row.append(node);
+      body.append(row);
+    }
+
+    function candidatePdf(item) {
+      const raw = item.raw || {};
+      return raw.pmcid || raw.open_access_pdf_url ? "可获取" : "未知";
+    }
+
+    function filteredCandidates() {
+      const query = escapeSearch($("#candidate-filter").value);
+      const type = $("#candidate-type").value;
+      return state.candidates.filter(item => {
+        const haystack = escapeSearch([item.title, item.journal, item.study_type].join(" "));
+        return (!query || haystack.includes(query)) && (!type || item.study_type === type);
+      });
+    }
+
+    function renderCandidates() {
+      const body = $("#candidate-rows");
+      body.replaceChildren();
+      const items = filteredCandidates();
+      if (!items.length) emptyRow(body, 9, "当前没有符合条件的候审文献");
+      items.forEach(item => {
+        const row = document.createElement("tr");
+        selectionCell(row, "candidates", item.id);
+        cell(row, item.id, "id-col");
+        const title = cell(row, item.title, "title-cell");
+        const authorLine = document.createElement("span");
+        authorLine.className = "secondary";
+        authorLine.textContent = authors(item.authors);
+        if (authorLine.textContent) title.append(authorLine);
+        cell(row, item.journal);
+        cell(row, item.if_2025);
+        cell(row, quartile(item.jcr_quartiles));
+        cell(row, item.study_type);
+        cell(row, item.publication_year);
+        cell(row, candidatePdf(item));
+        body.append(row);
+      });
+      $("#candidate-count").textContent = `共 ${items.length} 条`;
+      updateSelection("candidates");
+    }
+
+    function filteredLibrary() {
+      const query = escapeSearch($("#library-filter").value);
+      return state.library.filter(item => escapeSearch([item.title, item.journal, authors(item.authors)].join(" ")).includes(query));
+    }
+
+    function renderLibrary() {
+      const body = $("#library-rows");
+      body.replaceChildren();
+      const items = filteredLibrary();
+      if (!items.length) emptyRow(body, 9, "文献库中暂无符合条件的记录");
+      items.forEach(item => {
+        const row = document.createElement("tr");
+        selectionCell(row, "library", item.id);
+        cell(row, item.id);
+        const title = cell(row, item.title, "title-cell");
+        const secondary = document.createElement("span");
+        secondary.className = "secondary";
+        secondary.textContent = authors(item.authors) || (item.pmid ? `PMID ${item.pmid}` : "");
+        if (secondary.textContent) title.append(secondary);
+        cell(row, item.journal);
+        cell(row, item.if_2025);
+        cell(row, quartile(item.jcr_quartiles));
+        cell(row, item.study_type);
+        cell(row, item.publication_year);
+        const pdfCell = document.createElement("td");
+        pdfCell.append(statusNode(item.has_pdf ? "completed" : "pending"));
+        pdfCell.firstChild.textContent = item.has_pdf ? "已有" : "缺失";
+        row.append(pdfCell);
+        body.append(row);
+      });
+      $("#library-count").textContent = `共 ${items.length} 条`;
+      updateSelection("library");
+    }
+
+    function renderSearches() {
+      const body = $("#search-rows");
+      body.replaceChildren();
+      if (!state.searches.length) emptyRow(body, 7, "尚未创建定时检索任务");
+      state.searches.forEach(item => {
+        const row = document.createElement("tr");
+        selectionCell(row, "searches", item.id);
+        cell(row, item.id);
+        const name = cell(row, item.name, "title-cell");
+        const query = document.createElement("span"); query.className = "secondary"; query.textContent = item.query; name.append(query);
+        cell(row, ({ daily: "每天", weekly: "每周", monthly: "每月" })[item.frequency] || item.frequency);
+        cell(row, formatDate(item.next_run_at));
+        cell(row, formatDate(item.last_run_at));
+        const statusCell = document.createElement("td");
+        const toggle = document.createElement("button");
+        toggle.className = "button quiet";
+        toggle.append(statusNode(item.enabled ? "enabled" : "disabled"));
+        toggle.title = item.enabled ? "点击停用" : "点击启用";
+        toggle.addEventListener("click", async () => {
+          try { await post("/api/searches", { id: item.id, enabled: !item.enabled }); await loadSearches(); toast("任务状态已更新"); }
+          catch (error) { toast(error.message, true); }
+        });
+        statusCell.append(toggle); row.append(statusCell);
+        body.append(row);
+      });
+      updateSelection("searches");
+    }
+
+    function taskSummary(item) {
+      if (item.error && item.error.message) return item.error.message;
+      if (item.result && item.result.status) return item.result.status;
+      if (item.result && Object.keys(item.result).length) return JSON.stringify(item.result).slice(0, 120);
+      return "—";
+    }
+
+    function renderTasks() {
+      const body = $("#task-rows");
+      body.replaceChildren();
+      if (!state.tasks.length) emptyRow(body, 7, "当前没有后台任务记录");
+      state.tasks.forEach(item => {
+        const row = document.createElement("tr");
+        selectionCell(row, "tasks", item.id);
+        cell(row, item.id);
+        cell(row, ({ pdf_fetch: "PDF 获取", scheduled_update: "定时检索", import: "导入", index: "索引" })[item.task_type] || item.task_type);
+        const statusCell = document.createElement("td"); statusCell.append(statusNode(item.status)); row.append(statusCell);
+        cell(row, formatDate(item.created_at));
+        cell(row, formatDate(item.finished_at));
+        cell(row, taskSummary(item));
+        body.append(row);
+      });
+      $("#task-count").textContent = `共 ${state.tasks.length} 条`;
+      updateSelection("tasks");
+    }
+
+    function updateSelection(group) {
+      const count = state.selected[group].size;
+      if (group === "candidates") {
+        $("#metric-candidate-selected").textContent = count;
+        $("#approve-candidates").disabled = !count;
+        $("#reject-candidates").disabled = !count;
+      } else if (group === "library") {
+        ["#delete-papers", "#reindex-papers", "#fetch-pdfs"].forEach(selector => $(selector).disabled = !count);
+      } else if (group === "searches") {
+        $("#run-searches").disabled = !count;
+      } else if (group === "tasks") {
+        $("#retry-tasks").disabled = !count;
+      }
+    }
+
+    function syncTypes() {
+      const select = $("#candidate-type");
+      const current = select.value;
+      const values = [...new Set(state.candidates.map(item => item.study_type).filter(Boolean))].sort();
+      select.replaceChildren(new Option("全部研究类型", ""), ...values.map(value => new Option(value, value)));
+      select.value = values.includes(current) ? current : "";
+    }
+
+    async function loadOverview() {
+      state.overview = await api("/api/overview");
+      $("#kb-path").textContent = state.overview.kb_path;
+      $("#schema-version").textContent = `v${state.overview.schema_version}`;
+      $("#metric-pending").textContent = state.overview.counts.pending_candidates;
+      $("#metric-approved").textContent = state.overview.counts.approved_papers;
+      $("#metric-pdfs").textContent = state.overview.counts.pdfs;
+    }
+
+    async function loadCandidates() {
+      const payload = await api("/api/candidates?status=pending");
+      state.candidates = payload.items;
+      const valid = new Set(state.candidates.map(item => item.id));
+      state.selected.candidates = new Set([...state.selected.candidates].filter(id => valid.has(id)));
+      syncTypes(); renderCandidates(); await loadOverview();
+    }
+
+    async function loadLibrary() {
+      state.library = (await api("/api/library")).items;
+      const valid = new Set(state.library.map(item => item.id));
+      state.selected.library = new Set([...state.selected.library].filter(id => valid.has(id)));
+      renderLibrary(); await loadOverview();
+    }
+
+    async function loadSearches() {
+      state.searches = (await api("/api/searches")).items;
+      renderSearches();
+    }
+
+    async function loadTasks() {
+      const status = $("#task-status").value;
+      state.tasks = (await api(`/api/tasks${status ? `?status=${encodeURIComponent(status)}` : ""}`)).items;
+      renderTasks(); await loadOverview();
+    }
+
+    async function loadView(name) {
+      try {
+        if (name === "candidates") await loadCandidates();
+        if (name === "library") await loadLibrary();
+        if (name === "searches") await loadSearches();
+        if (name === "tasks") await loadTasks();
+      } catch (error) { toast(error.message, true); }
+    }
+
+    function switchView(name) {
+      $$(".nav-button").forEach(button => button.classList.toggle("active", button.dataset.view === name));
+      $$(".view").forEach(view => view.classList.toggle("active", view.id === `view-${name}`));
+      loadView(name);
+    }
+
+    async function approveSelected() {
+      const ids = [...state.selected.candidates];
+      if (!ids.length) return;
+      setLoading($("#view-candidates"), true);
+      try {
+        const result = await post("/api/candidates/approve", { ids });
+        state.selected.candidates.clear();
+        const skipped = Array.isArray(result.skipped) ? result.skipped.length : 0;
+        toast(skipped ? `已批准 ${result.approved.length} 篇，跳过 ${skipped} 篇已入库文献` : `已批准 ${result.approved.length} 篇文献`);
+        await Promise.all([loadCandidates(), loadLibrary(), loadTasks()]);
+      } catch (error) { toast(error.message, true); }
+      finally { setLoading($("#view-candidates"), false); }
+    }
+
+    function openConfirmation(config) {
+      state.confirmation = { ...config, token: null, preview: null };
+      $("#dialog-title").textContent = config.title;
+      $("#dialog-message").textContent = config.message;
+      $("#dialog-description").textContent = config.description || "";
+      $("#dialog-impact").hidden = true;
+      $("#reason-wrap").hidden = !config.reason;
+      $("#reject-reason").value = "";
+      $("#dialog-confirm").textContent = "查看影响";
+      $("#dialog-confirm").className = `button ${config.danger ? "danger" : "primary"}`;
+      $("#confirm-dialog").showModal();
+    }
+
+    async function advanceConfirmation() {
+      const current = state.confirmation;
+      if (!current) return;
+      const payload = { ...current.payload };
+      if (current.reason) payload.reason = $("#reject-reason").value.trim();
+      const button = $("#dialog-confirm");
+      button.disabled = true;
+      try {
+        if (!current.token) {
+          const preview = await post(current.endpoint, payload);
+          current.preview = preview;
+          current.token = preview.confirmation_token;
+          current.payload = payload;
+          $("#dialog-impact").hidden = false;
+          $("#dialog-impact").textContent = `影响范围：${preview.affected_count} 条记录。确认令牌将在 ${formatDate(preview.expires_at)} 失效。`;
+          button.textContent = current.confirmLabel || "确认执行";
+          return;
+        }
+        const result = await post(current.endpoint, { ...current.payload, confirm: current.token });
+        $("#confirm-dialog").close();
+        toast(current.success(result));
+        state.confirmation = null;
+        await current.reload();
+      } catch (error) { toast(error.message, true); }
+      finally { button.disabled = false; }
+    }
+
+    async function uploadFiles(files) {
+      if (!files.length) return;
+      const form = new FormData();
+      [...files].forEach(file => form.append("files", file));
+      const resultNode = $("#upload-result");
+      resultNode.textContent = `正在导入 ${files.length} 个文件...`;
+      setLoading($("#upload-zone"), true);
+      try {
+        const response = await fetch("/api/import", { method: "POST", body: form });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.message || "上传失败");
+        resultNode.textContent = `导入完成：新增 ${payload.created} 条，重复 ${payload.duplicates} 条，失败 ${payload.failed} 条。`;
+        toast("本地文件已导入");
+        await Promise.all([loadLibrary(), loadOverview()]);
+      } catch (error) { resultNode.textContent = error.message; toast(error.message, true); }
+      finally { setLoading($("#upload-zone"), false); $("#file-input").value = ""; }
+    }
+
+    $$(".nav-button").forEach(button => button.addEventListener("click", () => switchView(button.dataset.view)));
+    $("#mobile-menu").addEventListener?.("click", () => $(".nav").scrollIntoView({ behavior: "smooth" }));
+    $("#refresh-candidates").addEventListener("click", loadCandidates);
+    $("#refresh-library").addEventListener("click", loadLibrary);
+    $("#refresh-searches").addEventListener("click", loadSearches);
+    $("#refresh-tasks").addEventListener("click", loadTasks);
+    $("#candidate-filter").addEventListener("input", renderCandidates);
+    $("#candidate-type").addEventListener("change", renderCandidates);
+    $("#library-filter").addEventListener("input", renderLibrary);
+    $("#task-status").addEventListener("change", loadTasks);
+    $("#approve-candidates").addEventListener("click", approveSelected);
+    $("#reject-candidates").addEventListener("click", () => openConfirmation({
+      title: "拒绝所选文献", message: `确定拒绝所选的 ${state.selected.candidates.size} 篇文献吗？`, description: "拒绝记录会保留用于审计，不会进入文献库。", endpoint: "/api/candidates/reject", payload: { ids: [...state.selected.candidates] }, reason: true, danger: true, confirmLabel: "确认拒绝", success: result => `已拒绝 ${result.rejected.length} 篇文献`, reload: async () => { state.selected.candidates.clear(); await loadCandidates(); }
+    }));
+    $("#delete-papers").addEventListener("click", () => openConfirmation({
+      title: "删除所选文献", message: `确定删除所选的 ${state.selected.library.size} 篇文献吗？`, description: "文献记录和检索分块将被删除，原始本地文件会保留。", endpoint: "/api/library/delete", payload: { ids: [...state.selected.library] }, danger: true, confirmLabel: "确认删除", success: result => `已删除 ${result.deleted.length} 篇文献`, reload: async () => { state.selected.library.clear(); await loadLibrary(); }
+    }));
+    $("#reindex-papers").addEventListener("click", () => openConfirmation({
+      title: "重建所选索引", message: `重建 ${state.selected.library.size} 篇文献的检索索引？`, description: "现有分块将由摘要和已提取全文重新生成。", endpoint: "/api/library/reindex", payload: { ids: [...state.selected.library] }, danger: false, confirmLabel: "确认重建", success: result => `已重建 ${result.rebuilt.length} 篇文献`, reload: loadLibrary
+    }));
+    $("#fetch-pdfs").addEventListener("click", async () => {
+      const ids = [...state.selected.library];
+      if (!ids.length) return;
+      try {
+        const results = [];
+        for (const id of ids) results.push(...(await post("/api/pdfs/fetch", { doc_id: id })).results);
+        toast(`PDF 任务完成：${results.filter(item => item.status === "downloaded").length} 个下载成功`);
+        await Promise.all([loadLibrary(), loadTasks()]);
+      } catch (error) { toast(error.message, true); }
+    });
+
+    function bindSelectAll(selector, group, visibleItems) {
+      $(selector).addEventListener("change", event => {
+        visibleItems().forEach(item => event.target.checked ? state.selected[group].add(item.id) : state.selected[group].delete(item.id));
+        if (group === "candidates") renderCandidates();
+        if (group === "library") renderLibrary();
+        if (group === "searches") renderSearches();
+        if (group === "tasks") renderTasks();
+      });
+    }
+    bindSelectAll("#select-all-candidates", "candidates", filteredCandidates);
+    bindSelectAll("#select-all-library", "library", filteredLibrary);
+    bindSelectAll("#select-all-searches", "searches", () => state.searches);
+    bindSelectAll("#select-all-tasks", "tasks", () => state.tasks);
+
+    $("#choose-files").addEventListener("click", () => $("#file-input").click());
+    $("#file-input").addEventListener("change", event => uploadFiles(event.target.files));
+    ["dragenter", "dragover"].forEach(name => $("#upload-zone").addEventListener(name, event => { event.preventDefault(); $("#upload-zone").classList.add("dragging"); }));
+    ["dragleave", "drop"].forEach(name => $("#upload-zone").addEventListener(name, event => { event.preventDefault(); $("#upload-zone").classList.remove("dragging"); }));
+    $("#upload-zone").addEventListener("drop", event => uploadFiles(event.dataTransfer.files));
+
+    $("#search-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const minIf = $("#search-min-if").value;
+      const jcr = $("#search-jcr").value;
+      const studyType = $("#search-study-type").value.trim();
+      try {
+        const result = await post("/api/searches", {
+          name: $("#search-name").value.trim(), query: $("#search-query").value.trim(), frequency: $("#search-frequency").value, run_first: $("#search-run-first").checked,
+          filters: { min_if: minIf ? Number(minIf) : null, jcr_quartiles: jcr ? [jcr] : [], study_types: studyType ? [studyType] : [] }
+        });
+        toast(`定时任务 #${result.saved_search_id} 已创建`);
+        event.target.reset(); $("#search-frequency").value = "weekly"; $("#search-run-first").checked = true;
+        await Promise.all([loadSearches(), loadCandidates(), loadTasks()]);
+      } catch (error) { toast(error.message, true); }
+    });
+    $("#run-searches").addEventListener("click", async () => {
+      try { const result = await post("/api/searches/run", { ids: [...state.selected.searches] }); toast(`已运行 ${result.runs.length} 个检索任务`); await Promise.all([loadSearches(), loadCandidates(), loadTasks()]); }
+      catch (error) { toast(error.message, true); }
+    });
+    $("#retry-tasks").addEventListener("click", async () => {
+      try { const result = await post("/api/tasks/retry", { ids: [...state.selected.tasks] }); toast(`已提交 ${result.results.length} 个重试`); state.selected.tasks.clear(); await loadTasks(); }
+      catch (error) { toast(error.message, true); }
+    });
+
+    $(".dialog-close").addEventListener("click", () => $("#confirm-dialog").close());
+    $("#dialog-cancel").addEventListener("click", () => $("#confirm-dialog").close());
+    $("#dialog-confirm").addEventListener("click", advanceConfirmation);
+
+    Promise.all([loadOverview(), loadCandidates()]).catch(error => toast(error.message, true));
+  </script>
 </body>
 </html>

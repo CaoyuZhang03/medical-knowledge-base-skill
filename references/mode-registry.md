@@ -1,17 +1,19 @@
 # Medical Knowledge Base Mode Registry
 
-Single source of truth for workflow modes.
+This is the single source of truth for primary routing after durable local-KB intent has been established.
 
-| Mode | Purpose | Oversight | Main Workflow |
-|---|---|---:|---|
-| `init-kb` | Create a local SQLite/file-based biomedical KB | High | `workflows/init-kb/workflow.md` |
-| `import-local-files` | Import PDFs, DOCX, Markdown, TXT, tables, bibliographies, or PMID lists | Medium | `workflows/import-local-files/workflow.md` |
-| `pubmed-discovery` | Generate or run PubMed searches and place results in candidate review | High | `workflows/pubmed-discovery/workflow.md` |
-| `candidate-review` | Approve, reject, filter, or ingest candidate papers | High | `workflows/candidate-review/workflow.md` |
-| `scheduled-updates` | Configure and run recurring PubMed updates | High | `workflows/scheduled-updates/workflow.md` |
-| `library-management` | List, delete, repair, or reindex approved papers | High for destructive actions | `workflows/library-management/workflow.md` |
-| `knowledge-qa` | Retrieve evidence for Codex answer synthesis | Medium | `workflows/knowledge-qa/workflow.md` |
-| `pdf-acquisition` | Fetch or audit open-access PDFs | Medium | `workflows/pdf-acquisition/workflow.md` |
-| `quality-audit` | Validate contracts, evals, schema shape, and KB consistency | Low | `workflows/quality-audit/workflow.md` |
+| Mode | Trigger | Oversight | UI Default | Main Workflow |
+|---|---|---:|---:|---|
+| `init-kb` | Create, configure, or inspect a durable KB directory | High | No | `workflows/init-kb/workflow.md` |
+| `import-local-files` | Import user-selected files into a KB | Medium | Yes | `workflows/import-local-files/workflow.md` |
+| `pubmed-discovery` | Discover PubMed records for a KB candidate queue | High | After results | `workflows/pubmed-discovery/workflow.md` |
+| `candidate-review` | Approve, reject, filter, or inspect candidates | High | Yes | `workflows/candidate-review/workflow.md` |
+| `scheduled-updates` | Configure, run, enable, or disable recurring searches | High | Yes | `workflows/scheduled-updates/workflow.md` |
+| `library-management` | List, delete, fetch PDFs for, or reindex approved papers | High | Yes | `workflows/library-management/workflow.md` |
+| `knowledge-qa` | Retrieve approved evidence for all-KB or selected-paper QA | Medium | No | `workflows/knowledge-qa/workflow.md` |
+| `pdf-acquisition` | Run or inspect open-access PDF tasks for KB papers | Medium | Yes | `workflows/pdf-acquisition/workflow.md` |
+| `quality-audit` | Validate contracts, evals, schemas, or KB consistency | Low | No | `workflows/quality-audit/workflow.md` |
 
-When ambiguous, prefer a clarification question over routing to a destructive or ingesting workflow.
+One-off literature lookup, standalone document summarization, and general medical questions are outside this registry unless the user explicitly ties them to a durable local KB.
+
+When multiple modes are requested with a clear sequence, choose the first unresolved phase as primary and name the later phases. When the sequence is unclear, ask which outcome the user wants first.

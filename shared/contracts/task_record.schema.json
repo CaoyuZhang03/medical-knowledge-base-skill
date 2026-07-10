@@ -11,8 +11,12 @@
       "enum": ["pdf_fetch", "index", "pubmed_search", "scheduled_update", "audit", "import"]
     },
     "payload": { "type": "object" },
+    "result": { "type": ["object", "null"] },
+    "error": { "type": ["object", "null"] },
     "status": { "enum": ["pending", "running", "completed", "failed"] },
     "created_at": { "type": "string" },
-    "updated_at": { "type": "string" }
+    "updated_at": { "type": "string" },
+    "started_at": { "type": ["string", "null"] },
+    "finished_at": { "type": ["string", "null"] }
   }
 }

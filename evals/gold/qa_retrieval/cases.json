@@ -4,5 +4,11 @@
     "question": "Which biologic reduced asthma exacerbations?",
     "expected_phrase": "Dupilumab reduced exacerbations",
     "limit": 3
+  },
+  {
+    "id": "retrieves-chinese-evidence",
+    "question": "度普利尤单抗对哮喘急性发作有什么影响？",
+    "expected_phrase": "度普利尤单抗降低严重哮喘急性发作",
+    "limit": 3
   }
 ]
